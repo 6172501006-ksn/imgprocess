@@ -1,1 +1,107 @@
 # imgprocess
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Negative Effect (JavaScript)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f7f7f7;
+        }
+        .container {
+            background: #fff;
+            border-radius: 8px;
+            padding: 32px 24px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            max-width: 420px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        #fileInput {
+            margin-bottom: 16px;
+        }
+        #output {
+            margin-top: 24px;
+        }
+        img {
+            max-width: 320px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            margin-top: 8px;
+        }
+        .label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Import Image and Show Negative</h2>
+        <label for="fileInput" class="label">Choose an image file:</label>
+        <input type="file" id="fileInput" accept="image/*">
+        <div id="output"></div>
+        <canvas id="canvas" style="display:none;"></canvas>
+    </div>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const output = document.getElementById('output');
+        const canvas = document.getElementById('canvas');
+
+        fileInput.addEventListener('change', function() {
+            output.innerHTML = ""; // Clear previous output
+            const file = fileInput.files[0];
+            if (!file) {
+                output.textContent = "No file was uploaded.";
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Show original image
+                    output.innerHTML = `<div>Original:</div>`;
+                    const origImg = new Image();
+                    origImg.src = img.src;
+                    output.appendChild(origImg);
+
+                    // Prepare canvas for negative effect
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+
+                    // Get image data and apply negative
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = 255 - data[i];     // Red
+                        data[i+1] = 255 - data[i+1]; // Green
+                        data[i+2] = 255 - data[i+2]; // Blue
+                    }
+                    ctx.putImageData(imageData, 0, 0);
+
+                    // Show negative image
+                    output.innerHTML += `<div style="margin-top:20px;">Negative:</div>`;
+                    const negativeImg = new Image();
+                    negativeImg.src = canvas.toDataURL();
+                    output.appendChild(negativeImg);
+
+                    // Show info
+                    output.innerHTML += `<p style="margin-top:15px;">Successfully read <b>${file.name}</b> (${img.width} × ${img.height} pixels)</p>`;
+                };
+                img.onerror = function() {
+                    output.textContent = `Error: Could not read image file ${file.name}.`;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>
