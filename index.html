@@ -1,106 +1,38 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <title>Image Negative Effect (JavaScript)</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            background: #f7f7f7;
-        }
-        .container {
-            background: #fff;
-            border-radius: 8px;
-            padding: 32px 24px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-            max-width: 420px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        h2 {
-            margin-bottom: 20px;
-        }
-        #fileInput {
-            margin-bottom: 16px;
-        }
-        #output {
-            margin-top: 24px;
-        }
-        img {
-            max-width: 320px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-            margin-top: 8px;
-        }
-        .label {
-            font-weight: bold;
-            margin-bottom: 8px;
-            display: block;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Negative Photo Background Carousel</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="container">
-        <h2>Import Image and Show Negative</h2>
-        <label for="fileInput" class="label">Choose an image file:</label>
-        <input type="file" id="fileInput" accept="image/*">
-        <div id="output"></div>
-        <canvas id="canvas" style="display:none;"></canvas>
+  <!-- Hero container: background carousel sits behind the content -->
+  <section class="hero">
+    <div class="viewport" aria-hidden="true">
+      <div class="track">
+        <!-- NOTE: slides are in reverse order so the visible images slide to the RIGHT -->
+        <!-- Replace these src attributes with your negative product photos (or un-invert via CSS) -->
+        <div class="slide"><img src="images/photo4.jpg" alt="" class="negate" /></div>
+        <div class="slide"><img src="images/photo3.jpg" alt="" class="negate" /></div>
+        <div class="slide"><img src="images/photo2.jpg" alt="" class="negate" /></div>
+        <div class="slide"><img src="images/photo1.jpg" alt="" class="negate" /></div>
+      </div>
     </div>
-    <script>
-        const fileInput = document.getElementById('fileInput');
-        const output = document.getElementById('output');
-        const canvas = document.getElementById('canvas');
 
-        fileInput.addEventListener('change', function() {
-            output.innerHTML = ""; // Clear previous output
-            const file = fileInput.files[0];
-            if (!file) {
-                output.textContent = "No file was uploaded.";
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    // Show original image
-                    output.innerHTML = `<div>Original:</div>`;
-                    const origImg = new Image();
-                    origImg.src = img.src;
-                    output.appendChild(origImg);
+    <div class="overlay"></div>
 
-                    // Prepare canvas for negative effect
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
+    <div class="content">
+      <h1 class="title">Your Product Title</h1>
+      <p class="lead">A short line of supporting copy that sits over the background. Use this for tagline, CTA, or small description.</p>
+      <a class="cta" href="#">Call to action</a>
+    </div>
+  </section>
 
-                    // Get image data and apply negative
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const data = imageData.data;
-                    for (let i = 0; i < data.length; i += 4) {
-                        data[i] = 255 - data[i];     // Red
-                        data[i+1] = 255 - data[i+1]; // Green
-                        data[i+2] = 255 - data[i+2]; // Blue
-                    }
-                    ctx.putImageData(imageData, 0, 0);
-
-                    // Show negative image
-                    output.innerHTML += `<div style="margin-top:20px;">Negative:</div>`;
-                    const negativeImg = new Image();
-                    negativeImg.src = canvas.toDataURL();
-                    output.appendChild(negativeImg);
-
-                    // Show info
-                    output.innerHTML += `<p style="margin-top:15px;">Successfully read <b>${file.name}</b> (${img.width} × ${img.height} pixels)</p>`;
-                };
-                img.onerror = function() {
-                    output.textContent = `Error: Could not read image file ${file.name}.`;
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-    </script>
+  <!-- Optional: small script to toggle invert if you need (not required) -->
+  <script>
+    // If your images are already negative, remove the 'negate' class from <img> tags or run this to remove it:
+    // document.querySelectorAll('.negate').forEach(img => img.classList.remove('negate'));
+  </script>
 </body>
 </html>
